@@ -7,6 +7,15 @@ clusterName: "{{ specification.cluster_name }}"
 controlPlaneEndpoint: "localhost:3446"
 {% endif %}
 
+etcd:
+  local:
+    extraArgs:
+      # https://github.com/etcd-io/etcd/blob/master/Documentation/tuning.md
+      # https://github.com/etcd-io/etcd/blob/master/etcd.conf.yml.sample#L15-L19
+      # https://godoc.org/k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm/v1beta1#LocalEtcd
+      heartbeat-interval: "150"  # default is 100ms
+      election-timeout: "5000"   # 5s, default is 1000ms (1s), upper limit it 50000ms (50s)
+
 apiServer:
   timeoutForControlPlane: 4m0s
   extraArgs: # https://kubernetes.io/docs/reference/command-line-tools-reference/kube-apiserver/
