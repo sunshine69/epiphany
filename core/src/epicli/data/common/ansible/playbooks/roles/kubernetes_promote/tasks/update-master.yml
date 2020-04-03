@@ -30,6 +30,14 @@
           {{ kubeadm_config.stdout | from_yaml }}
         update:
           controlPlaneEndpoint: localhost:3446
+          etcd:
+            local:
+              extraArgs:
+                # https://github.com/etcd-io/etcd/blob/master/Documentation/tuning.md
+                # https://github.com/etcd-io/etcd/blob/master/etcd.conf.yml.sample#L15-L19
+                # https://godoc.org/k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm/v1beta1#LocalEtcd
+                heartbeat-interval: "{{ specification.advanced.etcd_args.heartbeat_interval | default('100') }}"  # default is 100ms
+                election-timeout: "{{ specification.advanced.etcd_args.election_timeout | default('1000') }}"     # default is 1000ms (1s), upper limit it 50000ms (50s)
           apiServer:
             certSANs:
               - localhost
@@ -129,3 +137,6 @@
         KUBECONFIG: /etc/kubernetes/admin.conf
       args:
         executable: /bin/bash
+
+    - name: Update and auto-restart etcd
+      import_tasks: update-etcd.yml

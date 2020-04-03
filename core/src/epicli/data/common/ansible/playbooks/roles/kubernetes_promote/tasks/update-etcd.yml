@@ -1,0 +1,43 @@
+---
+- name: Copy /etc/kubernetes/manifests/etcd.yaml
+  copy:
+    dest: /etc/kubernetes/manifests/etcd.yaml.copy
+    src: /etc/kubernetes/manifests/etcd.yaml
+    remote_src: true
+
+- name: Remove heartbeat-interval and election-timeout
+  lineinfile:
+    path: /etc/kubernetes/manifests/etcd.yaml.copy
+    state: absent
+    regexp: '^.*- {{ item }}.*$'
+  loop:
+    - "--heartbeat-interval="
+    - "--election-timeout="
+
+- name: Insert new values for heartbeat-interval and election-timeout
+  lineinfile:
+    path: /etc/kubernetes/manifests/etcd.yaml.copy
+    insertafter: '^    - --data-dir=/var/lib/etcd$'
+    line: '    - {{ item }}'
+  loop:
+    - "--heartbeat-interval={{ specification.advanced.etcd_args.heartbeat_interval | default('100') }}"  # default is 100ms
+    - "--election-timeout={{ specification.advanced.etcd_args.election_timeout | default('1000') }}"     # default is 1000ms (1s), upper limit it 50000ms (50s)
+
+- name: Replace live manifest with altered one
+  copy:
+    dest: /etc/kubernetes/manifests/etcd.yaml
+    src: /etc/kubernetes/manifests/etcd.yaml.copy
+    remote_src: true
+
+- name: Wait for API server to become available
+  shell: |
+    kubectl get pods \
+      --namespace kube-system
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  args:
+    executable: /bin/bash
+  register: kubectl_get_pods
+  until: kubectl_get_pods is success
+  retries: 30
+  delay: 5

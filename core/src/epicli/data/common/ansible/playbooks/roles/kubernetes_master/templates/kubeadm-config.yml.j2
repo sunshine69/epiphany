@@ -13,8 +13,8 @@ etcd:
       # https://github.com/etcd-io/etcd/blob/master/Documentation/tuning.md
       # https://github.com/etcd-io/etcd/blob/master/etcd.conf.yml.sample#L15-L19
       # https://godoc.org/k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm/v1beta1#LocalEtcd
-      heartbeat-interval: "150"  # default is 100ms
-      election-timeout: "5000"   # 5s, default is 1000ms (1s), upper limit it 50000ms (50s)
+      heartbeat-interval: "{{ specification.advanced.etcd_args.heartbeat_interval | default('100') }}"  # default is 100ms
+      election-timeout: "{{ specification.advanced.etcd_args.election_timeout | default('1000') }}"     # default is 1000ms (1s), upper limit it 50000ms (50s)
 
 apiServer:
   timeoutForControlPlane: 4m0s

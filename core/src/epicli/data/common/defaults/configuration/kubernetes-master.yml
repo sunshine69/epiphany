@@ -31,6 +31,11 @@ specification:
     certificatesDir: /etc/kubernetes/pki
     etcd_args:
       encrypted: yes
+      # https://github.com/etcd-io/etcd/blob/master/Documentation/tuning.md
+      # https://github.com/etcd-io/etcd/blob/master/etcd.conf.yml.sample#L15-L19
+      # https://godoc.org/k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm/v1beta1#LocalEtcd
+      heartbeat_interval: 120  # default is 100ms
+      election_timeout: 3000   # default is 1000ms (1s), upper limit it 50000ms (50s)
 
 #  image_registry_secrets:
 #  - email: emaul@domain.com
