@@ -8,14 +8,12 @@
 - name: Reload systemctl daemon to apply the new changes
   raw: systemctl daemon-reload
 
-- name: Wait for any possibly running unattended upgrade to finish
-  raw: systemd-run --property="After=apt-daily.service apt-daily-upgrade.service" --wait /bin/true
-
 - name: Purge unattended upgrades
   raw: apt-get -y purge unattended-upgrades
-
-- name: Update apt cache
-  raw: apt-get -y update
+  register: task_status_out
+  retries: 60
+  delay: 10
+  until: 'task_status_out.rc == 0'
 
 - name: Create epirepo and start HTTP server
   block:
