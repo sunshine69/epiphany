@@ -2,7 +2,7 @@
 # Common Debian family specific tasks
 
 - name: Disable timers for unattended upgrade, so that none will be triggered by the `date -s` call.
-  raw: systemctl disable --now {{item}}
+  shell: "systemctl disable --now {{item}}"
   with_items:
     - 'apt-daily.timer'
     - 'apt-daily-upgrade.timer'
@@ -11,11 +11,33 @@
   raw: systemctl daemon-reload
 
 - name: Purge unattended upgrades
-  raw: apt-get -y purge unattended-upgrades
+  shell: "apt-get -y purge unattended-upgrades"
   register: task_status_out
   retries: 60
   delay: 10
   until: 'task_status_out.rc == 0'
+
+- name: Display any process holding /var/lib/dpkg/lock
+  shell: "lsof /var/lib/dpkg/lock"
+  register: detect_process_dpkg_lock
+  failed_when: false
+  changed_when: false
+
+- debug: var=detect_process_dpkg_lock
+  when: 'not detect_process_dpkg_lock.failed'
+
+- name: Detect and kill process still holding lock
+  shell: |
+    pstree
+    PROC_ID=$(lsof /var/lib/dpkg/lock 2>/dev/null || true | grep -v COMMAND |awk '{print $2}')
+    if [ ! -z "$PROC_ID" ]; then
+      kill $PROC_ID
+    fi
+  when: 'not detect_process_dpkg_lock.failed'
+  register: kill_process_out
+
+- debug: var=kill_process_out.stdout
+  when: 'not detect_process_dpkg_lock.failed'
 
 - name: Install selinux packages as prerequisite for SELinux module
   apt:
