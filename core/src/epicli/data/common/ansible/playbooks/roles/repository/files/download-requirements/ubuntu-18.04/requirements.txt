@@ -130,6 +130,7 @@ python3-selinux
 python3-slip
 python3-slip-dbus
 python3-pip
+libpq-dev
 
 # for vim, issue #869
 libpython3.6
