@@ -130,6 +130,11 @@ python3-selinux
 python3-slip
 python3-slip-dbus
 python3-pip
+ca-certificates
+python3-distutils
+python3-setuptools
+python3-wheel
+python-pip-whl
 libpq-dev
 
 # for vim, issue #869
