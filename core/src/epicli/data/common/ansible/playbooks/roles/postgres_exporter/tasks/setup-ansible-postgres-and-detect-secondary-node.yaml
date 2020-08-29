@@ -9,6 +9,7 @@
             - python3-pip
             - libpq-dev
           state: present
+          install_recommends: no
 
       - name: Make sure python module psycopg2 required by ansible module installed
         pip:
