@@ -3,7 +3,7 @@
 
 - name: Install ansible module dependencies
   block:
-      - name: Install pip3
+      - name: Install ansible postgresql_query dependencies
         apt:
           name:
             - libpq5
