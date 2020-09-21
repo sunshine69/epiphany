@@ -147,11 +147,18 @@ else
     printf "\n"
     # download images using skopeo
     while IFS= read -r image_name; do
-        download_image "${image_name}" "${dst_dir_images}"
-        if [ $? != 0 ]; then
-            echo "Retry downloading ..."
-            download_image "${image_name}" "${dst_dir_images}"
-        fi
+        RET_CODE=-1
+        COUNT=0
+        while [ $COUNT -le 5 ]; do
+            let "COUNT=$COUNT+1"
+            if [ $RET_CODE != 0 ]; then
+                echo "Retry downloading after 3 secs ..."
+                sleep 3
+                download_image "${image_name}" "${dst_dir_images}" || RET_CODE=$? && true
+            else
+                break 1
+            fi
+        done
     done <<< "${images}"
 fi
 
