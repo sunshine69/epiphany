@@ -11,6 +11,7 @@
     is_default: "{{ item.isDefault | default(omit) }}"
     basic_auth_user: "{{ item.basicAuthUser | default(omit) }}"
     basic_auth_password: "{{ item.basicAuthPassword | default(omit) }}"
+    validate_certs: no
   with_items: "{{ grafana_datasources }}"
   when: not grafana_use_provisioning
 
