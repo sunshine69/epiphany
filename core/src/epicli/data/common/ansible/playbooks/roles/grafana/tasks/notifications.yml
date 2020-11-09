@@ -5,6 +5,7 @@
     user: "{{ grafana_security.admin_user }}"
     password: "{{ grafana_security.admin_password }}"
     force_basic_auth: true
+    validate_certs: false
     return_content: true
   no_log: true
   register: alert_notifications
@@ -15,6 +16,7 @@
     user: "{{ grafana_security.admin_user }}"
     password: "{{ grafana_security.admin_password }}"
     force_basic_auth: true
+    validate_certs: false
     method: POST
     body_format: json
     body: "{{ item | to_json }}"
