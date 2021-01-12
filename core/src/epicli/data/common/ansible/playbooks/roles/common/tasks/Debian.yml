@@ -29,10 +29,12 @@
 - name: Detect and kill process still holding lock
   shell: |
     pstree
-    PROC_ID=$(lsof /var/lib/dpkg/lock 2>/dev/null || true | grep -v COMMAND |awk '{print $2}')
-    if [ ! -z "$PROC_ID" ]; then
-      kill $PROC_ID
-    fi
+    for lock_file in /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/lib/apt/lists/lock /var/cache/apt/archives/lock; do
+      PROC_ID=$(lsof $lock_file 2>/dev/null | grep -v COMMAND | awk '{print $2}')
+      if [ ! -z "$PROC_ID" ]; then
+        kill $PROC_ID
+      fi
+    done
   when: 'not detect_process_dpkg_lock.failed'
   register: kill_process_out
 
