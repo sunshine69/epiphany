@@ -11,7 +11,7 @@ ENV DOCKER_CLI Yes
 COPY /dist/ /epicli
 WORKDIR /epicli
 
-RUN apt-get update \
+RUN apt-get update && apt -y upgrade \
     && apt-get -y install gcc make musl-dev libffi-dev tar unzip openssh-client vim  
 
 RUN pip install epicli-${EPICLI_VERSION}-py3-none-any.whl
